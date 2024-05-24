@@ -1,6 +1,9 @@
 package consumer
 
 import (
+	"log"
+
+	"github.com/evanstukalov/wildberries_internship_l0/internal/validation"
 	"github.com/nats-io/nats.go"
 )
 
@@ -31,7 +34,12 @@ func (s *Consumer) Close() {
 func (s *Consumer) Subscribe(subject string) error {
 	_, err := s.natsConn.Subscribe(subject, func(msg *nats.Msg) {
 
-		// Validation
+		order, err := validation.ValidateOrderJSON(string(msg.Data))
+
+		if err != nil {
+			log.Printf("Validation error: %v", err)
+			return
+		}
 
 		// ProcessData
 
