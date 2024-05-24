@@ -1,4 +1,4 @@
-# WB-Tech-level-0-Golang
+# wildberries_internship_level_0
 
 ```
 Тестовое задание
