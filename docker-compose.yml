@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16.3
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      .env
+    networks:
+      - general_network
+
+  nats-streaming:
+    image: nats-streaming:0.25.6-alpine3.18
+    restart: always
+    ports:
+      - 4222:4222
+      - 8222:8222
+    networks:
+      - general_network
+
+
+volumes:
+  postgres_data:
+
+
+networks:
+  general_network:
+    driver: bridge
