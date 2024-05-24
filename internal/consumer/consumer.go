@@ -3,16 +3,16 @@ package consumer
 import (
 	"log"
 
-	"github.com/evanstukalov/wildberries_internship_l0/internal/validation"
+	"github.com/evanstukalov/wildberries_internship_l0/internal/services"
 	"github.com/nats-io/nats.go"
 )
 
 type Consumer struct {
 	natsConn *nats.Conn
-	// processor *Processor
+	service  *services.MessageService
 }
 
-func NewSubscriber(natsURL string) (*Consumer, error) {
+func NewConsumer(natsURL string, service *services.MessageService) (*Consumer, error) {
 
 	nc, err := nats.Connect(natsURL)
 
@@ -22,6 +22,7 @@ func NewSubscriber(natsURL string) (*Consumer, error) {
 
 	return &Consumer{
 		natsConn: nc,
+		service:  service,
 	}, nil
 }
 
@@ -31,17 +32,12 @@ func (s *Consumer) Close() {
 	}
 }
 
-func (s *Consumer) Subscribe(subject string) error {
+func (s *Consumer) Consume(subject string) error {
 	_, err := s.natsConn.Subscribe(subject, func(msg *nats.Msg) {
 
-		order, err := validation.ValidateOrderJSON(string(msg.Data))
-
-		if err != nil {
-			log.Printf("Validation error: %v", err)
-			return
+		if err := s.service.ProcessMessage(msg.Data); err != nil {
+			log.Printf("Error processing message: %v", err)
 		}
-
-		// ProcessData
 
 	})
 

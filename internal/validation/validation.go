@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"github.com/go-playground/validator/v10"
+
+	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 )
 
 var validate *validator.Validate
@@ -13,8 +15,8 @@ func init() {
 	validate = validator.New()
 }
 
-func ValidateOrderJSON(jsonStr string) (*Order, error) {
-	var order Order
+func ValidateOrderJSON(jsonStr string) (*models.Order, error) {
+	var order models.Order
 
 	err := json.Unmarshal([]byte(jsonStr), &order)
 	if err != nil {
