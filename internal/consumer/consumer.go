@@ -9,10 +9,10 @@ import (
 
 type Consumer struct {
 	natsConn *nats.Conn
-	service  *services.MessageService
+	service  *services.OrderService
 }
 
-func NewConsumer(natsURL string, service *services.MessageService) (*Consumer, error) {
+func NewConsumer(natsURL string, service *services.OrderService) (*Consumer, error) {
 
 	nc, err := nats.Connect(natsURL)
 
@@ -35,7 +35,7 @@ func (s *Consumer) Close() {
 func (s *Consumer) Consume(subject string) error {
 	_, err := s.natsConn.Subscribe(subject, func(msg *nats.Msg) {
 
-		if err := s.service.ProcessMessage(msg.Data); err != nil {
+		if err := s.service.ProcessOrder(msg.Data); err != nil {
 			log.Printf("Error processing message: %v", err)
 		}
 

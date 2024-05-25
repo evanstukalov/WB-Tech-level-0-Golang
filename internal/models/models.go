@@ -1,55 +1,60 @@
 package models
 
 type Order struct {
-	OrderUID          string   `validate:"required"`
-	TrackNumber       string   `validate:"required"`
-	Entry             string   `validate:"required"`
-	Delivery          Delivery `validate:"required"`
-	Payment           Payment  `validate:"required"`
-	Items             []Item   `validate:"required,dive"`
-	Locale            string   `validate:"required"`
-	InternalSignature string   `validate:"required"`
-	CustomerID        string   `validate:"required"`
-	DeliveryService   string   `validate:"required"`
-	ShardKey          string   `validate:"required"`
-	SmID              int      `validate:"required"`
-	DateCreated       string   `validate:"required"`
-	OofShard          string   `validate:"required"`
+	OrderUID          string   `json:"order_uid" validate:"required" gorm:"primaryKey"`
+	TrackNumber       string   `json:"track_number"`
+	Entry             string   `json:"entry"`
+	Delivery          Delivery `json:"delivery" gorm:"-"`
+	Payment           Payment  `json:"payment" gorm:"-"`
+	Items             []Item   `json:"items" validate:"required,dive" gorm:"-"`
+	Locale            string   `json:"locale"`
+	InternalSignature string   `json:"internal_signature"`
+	CustomerID        string   `json:"customer_id"`
+	DeliveryService   string   `json:"delivery_service"`
+	ShardKey          string   `json:"shardkey"`
+	SmID              int      `json:"sm_id"`
+	DateCreated       string   `json:"date_created"`
+	OofShard          string   `json:"oof_shard"`
+	DeliveryID        int      `json:"delivery_id"`
+	PaymentID         string   `json:"payment_id"`
 }
 
 type Delivery struct {
-	Name    string `validate:"required"`
-	Phone   string `validate:"required"`
-	Zip     string `validate:"required"`
-	City    string `validate:"required"`
-	Address string `validate:"required"`
-	Region  string `validate:"required"`
-	Email   string `validate:"required,email"`
+	DeliveryID int    `gorm:"primaryKey;autoIncrement"`
+	Name       string `json:"name"`
+	Phone      string `json:"phone"`
+	Zip        string `json:"zip"`
+	City       string `json:"city"`
+	Address    string `json:"address"`
+	Region     string `json:"region"`
+	Email      string `json:"email" validate:"email"`
 }
 
 type Payment struct {
-	Transaction  string  `validate:"required"`
-	RequestID    string  `validate:"required"`
-	Currency     string  `validate:"required"`
-	Provider     string  `validate:"required"`
-	Amount       float64 `validate:"required,gte=0"`
-	PaymentDT    int64   `validate:"required,gte=0"`
-	Bank         string  `validate:"required"`
-	DeliveryCost int     `validate:"required,gte=0"`
-	GoodsTotal   int     `validate:"required,gte=0"`
-	CustomFee    int     `validate:"required,gte=0"`
+	PaymentID    string  `gorm:"primaryKey;autoIncrement"`
+	Transaction  string  `json:"transaction"`
+	RequestID    string  `json:"request_id"`
+	Currency     string  `json:"currency"`
+	Provider     string  `json:"provider"`
+	Amount       float64 `json:"amount" validate:"gte=0"`
+	PaymentDT    int64   `json:"payment_dt" validate:"gte=0"`
+	Bank         string  `json:"bank"`
+	DeliveryCost int     `json:"delivery_cost" validate:"gte=0"`
+	GoodsTotal   int     `json:"goods_total" validate:"gte=0"`
+	CustomFee    int     `json:"custom_fee" validate:"gte=0"`
 }
 
 type Item struct {
-	ChrtID      int    `validate:"required"`
-	TrackNumber string `validate:"required"`
-	Price       int    `validate:"required,gte=0"`
-	Rid         string `validate:"required"`
-	Name        string `validate:"required"`
-	Sale        int    `validate:"required,gte=0"`
-	Size        string `validate:"required"`
-	TotalPrice  int    `validate:"required,gte=0"`
-	NmID        int    `validate:"required"`
-	Brand       string `validate:"required"`
-	Status      int    `validate:"required,gte=0"`
+	ChrtID      int    `json:"chrt_id"`
+	TrackNumber string `json:"track_number"`
+	Price       int    `json:"price" validate:"gte=0"`
+	Rid         string `json:"rid"`
+	Name        string `json:"name"`
+	Sale        int    `json:"sale" validate:"gte=0"`
+	Size        string `json:"size"`
+	TotalPrice  int    `json:"total_price" validate:"gte=0"`
+	NmID        int    `json:"nm_id"`
+	Brand       string `json:"brand"`
+	Status      int    `json:"status" validate:"gte=0"`
+	OrderUID    string `gorm:"primaryKey"`
 }

@@ -8,16 +8,16 @@ import (
 	"github.com/evanstukalov/wildberries_internship_l0/internal/validation"
 )
 
-type MessageService struct {
+type OrderService struct {
 	cache    *cache.Cache
 	database *database.Database
 }
 
-func NewMessageService(cache *cache.Cache, db *database.Database) *MessageService {
-	return &MessageService{cache: cache, database: db}
+func NewMessageService(cache *cache.Cache, db *database.Database) *OrderService {
+	return &OrderService{cache: cache, database: db}
 }
 
-func (messageService MessageService) ProcessMessage(message []byte) error {
+func (orderService OrderService) ProcessOrder(message []byte) error {
 
 	order, err := validation.ValidateOrderJSON(string(message))
 
@@ -26,13 +26,17 @@ func (messageService MessageService) ProcessMessage(message []byte) error {
 		return err
 	}
 
-	err = (*messageService.cache).Add(order.OrderUID, order)
+	err = orderService.database.CreateOrder(order)
+	if err != nil {
+		log.Printf("Database error: %v", err)
+		return err
+	}
+
+	err = (*orderService.cache).Add(order.OrderUID, order)
 	if err != nil {
 		log.Printf("Cache error: %v", err)
 		return err
 	}
-
-	// db
 
 	return nil
 
