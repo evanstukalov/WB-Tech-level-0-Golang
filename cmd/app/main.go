@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/evanstukalov/wildberries_internship_l0/internal/api"
 	"log"
 	"os"
 	"os/signal"
@@ -28,24 +29,28 @@ func main() {
 	}
 
 	db, err := database.NewDataBase(dataSourceName)
-
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	cache := cache.NewInMemoryCache()
+	inMemoryCache := cache.NewInMemoryCache()
+	orderService := services.NewMessageService(&inMemoryCache, db)
 
-	messageService := services.NewMessageService(&cache, db)
+	err = orderService.FillCacheWithOrders()
+	if err != nil {
+		return
+	}
 
-	consumer, err := consumer.NewConsumer("nats://localhost:4222", messageService)
-
+	natsConsumer, err := consumer.NewConsumer("nats://localhost:4222", orderService)
 	if err != nil {
 		log.Fatalf("Failed to connect to NATS: %v", err)
 	}
 
-	if err := consumer.Consume("orders"); err != nil {
+	if err := natsConsumer.Consume("orders"); err != nil {
 		log.Fatalf("Failed to subscribe to NATS: %v", err)
 	}
+
+	go api.Server{Cache: &inMemoryCache}.StartHTTPServer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

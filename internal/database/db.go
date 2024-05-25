@@ -20,11 +20,6 @@ func NewDataBase(dataSourceName string) (*Database, error) {
 		return nil, err
 	}
 
-	/*	err = db.AutoMigrate(&models.Order{}, &models.Delivery{}, &models.Payment{}, &models.Item{})
-		if err != nil {
-			fmt.Println("Error creating database table:", err)
-		}*/
-
 	return &Database{db: db}, nil
 }
 
@@ -53,4 +48,37 @@ func (d *Database) CreateOrder(order *models.Order) error {
 
 		return nil
 	})
+}
+
+func (d *Database) GetOrders() (map[string]models.Order, error) {
+	var orders []models.Order
+
+	if err := d.db.Find(&orders).Error; err != nil {
+		fmt.Println("Error retrieving orders:", err)
+		return nil, err
+	}
+
+	for i := range orders {
+
+		var delivery models.Delivery
+		var payment models.Payment
+		var item models.Item
+
+		d.db.Take(&delivery, "delivery_id = ?", orders[i].DeliveryID)
+		d.db.Take(&payment, "payment_id = ?", orders[i].PaymentID)
+		d.db.Take(&item, "order_uid = ?", orders[i].OrderUID)
+
+		orders[i].Delivery = delivery
+		orders[i].Payment = payment
+		orders[i].Items = append(orders[i].Items, item)
+
+	}
+
+	orderMap := make(map[string]models.Order)
+
+	for _, order := range orders {
+		orderMap[order.OrderUID] = order
+	}
+
+	return orderMap, nil
 }

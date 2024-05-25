@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 	"log"
 
 	"github.com/evanstukalov/wildberries_internship_l0/internal/cache"
@@ -40,4 +41,20 @@ func (orderService OrderService) ProcessOrder(message []byte) error {
 
 	return nil
 
+}
+
+func (orderService OrderService) FillCacheWithOrders() error {
+	var orders map[string]models.Order
+
+	orders, err := (*orderService.database).GetOrders()
+	if err != nil {
+		return err
+	}
+
+	err = (*orderService.cache).FillUp(orders)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

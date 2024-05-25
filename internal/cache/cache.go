@@ -2,10 +2,12 @@ package cache
 
 import (
 	"errors"
+	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 	"sync"
 )
 
 type Cache interface {
+	FillUp(data map[string]models.Order) error
 	Set(key string, value interface{}) error
 	Get(key string) (interface{}, error)
 	Add(key string, value interface{}) error
@@ -25,6 +27,16 @@ func NewInMemoryCache() Cache {
 	return &inMemoryCache{
 		data: make(map[string]cacheItem),
 	}
+}
+
+func (c *inMemoryCache) FillUp(data map[string]models.Order) error {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	c.data = make(map[string]cacheItem)
+	for key, value := range data {
+		c.data[key] = cacheItem{value: value}
+	}
+	return nil
 }
 
 func (c *inMemoryCache) Set(key string, value interface{}) error {
