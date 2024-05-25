@@ -6,7 +6,7 @@ import (
 
 	"github.com/evanstukalov/wildberries_internship_l0/internal/cache"
 	"github.com/evanstukalov/wildberries_internship_l0/internal/database"
-	"github.com/evanstukalov/wildberries_internship_l0/internal/validation"
+	"github.com/evanstukalov/wildberries_internship_l0/internal/utils"
 )
 
 type OrderService struct {
@@ -20,7 +20,7 @@ func NewMessageService(cache *cache.Cache, db *database.Database) *OrderService 
 
 func (orderService OrderService) ProcessOrder(message []byte) error {
 
-	order, err := validation.ValidateOrderJSON(string(message))
+	order, err := utils.ValidateOrderJSON(string(message))
 
 	if err != nil {
 		log.Printf("Validation error: %v", err)
