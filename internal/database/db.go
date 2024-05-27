@@ -1,7 +1,9 @@
 package database
 
 import (
-	"fmt"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
 
 	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 	"gorm.io/driver/postgres"
@@ -12,14 +14,26 @@ type Database struct {
 	db *gorm.DB
 }
 
-func NewDataBase(dataSourceName string) (*Database, error) {
-
-	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
+func NewDatabase() (*Database, error) {
+	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
+		log.Printf("Error loading .env file: %v", err)
 		return nil, err
 	}
 
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		log.Println("DATABASE_URL is not set")
+		return nil, err
+	}
+
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
+	if err != nil {
+		log.Printf("Error connecting to database: %v", err)
+		return nil, err
+	}
+
+	log.Println("Database connection established successfully")
 	return &Database{db: db}, nil
 }
 
@@ -54,7 +68,7 @@ func (d *Database) GetOrders() (map[string]models.Order, error) {
 	var orders []models.Order
 
 	if err := d.db.Find(&orders).Error; err != nil {
-		fmt.Println("Error retrieving orders:", err)
+		log.Println("Error retrieving orders:", err)
 		return nil, err
 	}
 

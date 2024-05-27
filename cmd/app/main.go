@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joho/godotenv"
-
 	"github.com/evanstukalov/wildberries_internship_l0/internal/cache"
 	"github.com/evanstukalov/wildberries_internship_l0/internal/consumer"
 	"github.com/evanstukalov/wildberries_internship_l0/internal/database"
@@ -17,18 +15,7 @@ import (
 
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalln("Error loading .env file")
-	}
-
-	dataSourceName := os.Getenv("DATABASE_URL")
-
-	if dataSourceName == "" {
-		log.Fatalln("DATABASE_URL is not set")
-	}
-
-	db, err := database.NewDataBase(dataSourceName)
+	db, err := database.NewDatabase()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
