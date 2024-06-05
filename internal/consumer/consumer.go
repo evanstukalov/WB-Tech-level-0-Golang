@@ -9,10 +9,10 @@ import (
 
 type Consumer struct {
 	natsConn *nats.Conn
-	service  *services.OrderService
+	service  services.OrderService
 }
 
-func NewConsumer(natsURL string, service *services.OrderService) (*Consumer, error) {
+func NewConsumer(natsURL string, service services.OrderService) (*Consumer, error) {
 
 	nc, err := nats.Connect(natsURL)
 
@@ -24,12 +24,6 @@ func NewConsumer(natsURL string, service *services.OrderService) (*Consumer, err
 		natsConn: nc,
 		service:  service,
 	}, nil
-}
-
-func (s *Consumer) Close() {
-	if s.natsConn != nil {
-		s.natsConn.Close()
-	}
 }
 
 func (s *Consumer) Consume(subject string) error {
