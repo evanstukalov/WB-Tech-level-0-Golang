@@ -10,31 +10,29 @@ type Cache interface {
 	FillUp(data map[string]models.Order) error
 	Set(key string, value interface{}) error
 	Get(key string) (interface{}, error)
-	Add(key string, value interface{}) error
-	Delete(key string) error
 }
 
 type inMemoryCache struct {
-	data  map[string]cacheItem
+	data  map[string]item
 	mutex sync.RWMutex
 }
 
-type cacheItem struct {
+type item struct {
 	value interface{}
 }
 
 func NewInMemoryCache() Cache {
 	return &inMemoryCache{
-		data: make(map[string]cacheItem),
+		data: make(map[string]item),
 	}
 }
 
 func (c *inMemoryCache) FillUp(data map[string]models.Order) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.data = make(map[string]cacheItem)
+	c.data = make(map[string]item)
 	for key, value := range data {
-		c.data[key] = cacheItem{value: value}
+		c.data[key] = item{value: value}
 	}
 	return nil
 }
@@ -42,7 +40,7 @@ func (c *inMemoryCache) FillUp(data map[string]models.Order) error {
 func (c *inMemoryCache) Set(key string, value interface{}) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.data[key] = cacheItem{
+	c.data[key] = item{
 		value: value,
 	}
 	return nil
@@ -57,26 +55,4 @@ func (c *inMemoryCache) Get(key string) (interface{}, error) {
 	}
 
 	return item.value, nil
-}
-
-func (c *inMemoryCache) Add(key string, value interface{}) error {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	if _, found := c.data[key]; found {
-		return errors.New("item already exists")
-	}
-	c.data[key] = cacheItem{
-		value: value,
-	}
-	return nil
-}
-
-func (c *inMemoryCache) Delete(key string) error {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	if _, found := c.data[key]; !found {
-		return errors.New("item not found")
-	}
-	delete(c.data, key)
-	return nil
 }
