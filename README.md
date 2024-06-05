@@ -1,5 +1,8 @@
 # wildberries_internship_level_0
 
+![wb_l0](https://github.com/evanstukalov/wildberries_internship_l0/assets/73346028/d11e4647-263a-4ac8-844b-15de5508489a)
+
+
 ```
 Тестовое задание
 
