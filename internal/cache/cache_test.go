@@ -1,9 +1,12 @@
 package cache
 
 import (
-	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 	"testing"
 )
+
+type Order struct {
+	OrderUID string
+}
 
 func TestAllEntriesStoredInCache(t *testing.T) {
 
@@ -11,9 +14,9 @@ func TestAllEntriesStoredInCache(t *testing.T) {
 		data: make(map[string]item),
 	}
 
-	testData := map[string]models.Order{
-		"order1": {OrderUID: "UID1"},
-		"order2": {OrderUID: "UID2"},
+	testData := map[string]interface{}{
+		"order1": Order{OrderUID: "UID1"},
+		"order2": Order{OrderUID: "UID2"},
 	}
 
 	err := cache.FillUp(testData)
@@ -33,7 +36,7 @@ func TestEmptyMapResultsInEmptyCache(t *testing.T) {
 		data: make(map[string]item),
 	}
 
-	emptyData := make(map[string]models.Order)
+	emptyData := make(map[string]interface{})
 
 	err := cache.FillUp(emptyData)
 	if err != nil {

@@ -2,14 +2,13 @@ package cache
 
 import (
 	"errors"
-	"github.com/evanstukalov/wildberries_internship_l0/internal/models"
 	"sync"
 )
 
 type Cache interface {
-	FillUp(data map[string]models.Order) error
-	Set(key string, value interface{}) error
 	Get(key string) (interface{}, error)
+	Set(key string, value interface{}) error
+	FillUp(data map[string]interface{}) error
 }
 
 type inMemoryCache struct {
@@ -27,7 +26,7 @@ func NewInMemoryCache() Cache {
 	}
 }
 
-func (c *inMemoryCache) FillUp(data map[string]models.Order) error {
+func (c *inMemoryCache) FillUp(data map[string]interface{}) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.data = make(map[string]item)
