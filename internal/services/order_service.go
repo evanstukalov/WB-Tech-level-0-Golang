@@ -9,16 +9,20 @@ import (
 	"github.com/evanstukalov/wildberries_internship_l0/internal/utils"
 )
 
-type OrderService struct {
-	cache    *cache.Cache
-	database *database.Database
+type OrderService interface {
+	ProcessOrder(data []byte) error
 }
 
-func NewMessageService(cache *cache.Cache, db *database.Database) *OrderService {
-	return &OrderService{cache: cache, database: db}
+type OrderServiceImpl struct {
+	cache    cache.Cache
+	database database.ServiceDataBase
 }
 
-func (orderService OrderService) ProcessOrder(message []byte) error {
+func NewMessageService(cache cache.Cache, db database.ServiceDataBase) *OrderServiceImpl {
+	return &OrderServiceImpl{cache: cache, database: db}
+}
+
+func (orderService OrderServiceImpl) ProcessOrder(message []byte) error {
 
 	order, err := utils.ValidateOrderJSON(string(message))
 
@@ -27,13 +31,13 @@ func (orderService OrderService) ProcessOrder(message []byte) error {
 		return err
 	}
 
-	err = orderService.database.CreateOrder(order)
+	err = orderService.database.Create(order)
 	if err != nil {
 		log.Printf("Database error: %v", err)
 		return err
 	}
 
-	err = (*orderService.cache).Add(order.OrderUID, order)
+	err = orderService.cache.Set(order.OrderUID, order)
 	if err != nil {
 		log.Printf("Cache error: %v", err)
 		return err
@@ -43,15 +47,20 @@ func (orderService OrderService) ProcessOrder(message []byte) error {
 
 }
 
-func (orderService OrderService) FillCacheWithOrders() error {
+func (orderService OrderServiceImpl) FillCacheWithOrders() error {
 	var orders map[string]models.Order
 
-	orders, err := (*orderService.database).GetOrders()
+	orders, err := orderService.database.GetAll()
 	if err != nil {
 		return err
 	}
 
-	err = (*orderService.cache).FillUp(orders)
+	ordersInterface := make(map[string]interface{})
+	for key, value := range orders {
+		ordersInterface[key] = value
+	}
+
+	err = orderService.cache.FillUp(ordersInterface)
 	if err != nil {
 		return err
 	}

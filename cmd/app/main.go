@@ -21,7 +21,7 @@ func main() {
 	}
 
 	inMemoryCache := cache.NewInMemoryCache()
-	orderService := services.NewMessageService(&inMemoryCache, db)
+	orderService := services.NewMessageService(inMemoryCache, db)
 
 	err = orderService.FillCacheWithOrders()
 	if err != nil {
@@ -37,7 +37,7 @@ func main() {
 		log.Fatalf("Failed to subscribe to NATS: %v", err)
 	}
 
-	go api.Server{Cache: &inMemoryCache}.StartHTTPServer()
+	go api.NewServer(inMemoryCache).StartHTTPServer()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

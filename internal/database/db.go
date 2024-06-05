@@ -10,6 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type ServiceDataBase interface {
+	Create(order *models.Order) error
+	GetAll() (map[string]models.Order, error)
+}
+
 type Database struct {
 	db *gorm.DB
 }
@@ -37,7 +42,7 @@ func NewDatabase() (*Database, error) {
 	return &Database{db: db}, nil
 }
 
-func (d *Database) CreateOrder(order *models.Order) error {
+func (d *Database) Create(order *models.Order) error {
 	return d.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&order.Delivery).Error; err != nil {
 			return err
@@ -64,7 +69,7 @@ func (d *Database) CreateOrder(order *models.Order) error {
 	})
 }
 
-func (d *Database) GetOrders() (map[string]models.Order, error) {
+func (d *Database) GetAll() (map[string]models.Order, error) {
 	var orders []models.Order
 
 	if err := d.db.Find(&orders).Error; err != nil {
